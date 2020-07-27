@@ -4,10 +4,12 @@
 
 image="aws-contextual-summary"
 
-mkdir -p test_dir/model
-mkdir -p test_dir/output
+mkdir -p code/output
+mkdir -p code/log
 
-rm test_dir/model/*
-rm test_dir/output/*
+rm -R code/output/*
+rm code/log/*
 
-docker run -v $(pwd)/test_dir:/opt/ml --rm ${image} train
+mkdir -p code/output/data
+
+docker run -v $(pwd)/code:/opt/ml --rm ${image} | tee $(pwd)/log/server.log

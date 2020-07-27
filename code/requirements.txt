@@ -1,0 +1,6 @@
+pandas 
+tensorflow 
+tensorflow_datasets 
+keras 
+utils
+sagemaker
