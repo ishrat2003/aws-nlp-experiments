@@ -1,3 +1,20 @@
 {
-    "abc": 123
+    "dataset_name": "covid19",
+    "display_details": true,
+    "dataset_percentage": 100,
+    "total_items":0,
+    "data_directory": "/opt/ml/input/data/training/",
+    "output_directory": "/opt/ml/output/",
+    "source_max_sequence_length": 3000,
+    "target_max_sequence_length": 300,
+    "epochs": 1,
+    "buffer_size": 20000,
+    "batch_size": 64,
+    "dimensions": 128,
+    "num_layers": 4,
+    "d_model": 128,
+    "dff": 512,
+    "dropout_rate": 0.1,
+    "position_contributing_factor": 1.0,
+    "occurance_contributing_factor": 1.0
 }

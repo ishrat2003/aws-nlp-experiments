@@ -1,70 +1,56 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import os
-import json
-import pickle
 import sys
 import traceback
 import logging
-import pandas as pd
-#import sagemaker
-from os import listdir
-from os.path import isfile, join
 
 # Registering local packages
 import sys
 packagesPath = os.path.join(os.getcwd(), "packages")
 sys.path.append(packagesPath)
 
+from params import Input as InputParams
+from params import Output as OutputParams
+from utility import Timer
 
-# These are the paths to where SageMaker mounts interesting things in your container.
+paramsProcessor = InputParams("/opt/ml/input/config/hyperparameters.json")
+params = paramsProcessor.getAll()
+outputProcessor = OutputParams()
+outputProcessor.addInfo('hyperparameters', params)
+        
+outputPath = params['output_directory'] if params['output_directory'] else "/opt/ml/output";
+logPath = os.path.join(params['output_directory'], "process.log")
+logging.basicConfig(filename=logPath,level=logging.DEBUG)
 
-prefix = '/opt/ml/'
-
-input_path = prefix + 'input/data'
-output_path = os.path.join(prefix, 'output')
-model_path = os.path.join(prefix, 'model')
-params_path = os.path.join(prefix, 'input/config/hyperparameters.json')
-
-logging.basicConfig(level=logging.INFO) 
-
-print(sys.argv);
-print(os.getenv('env_var_name'))
-
-# The function to execute the training.
 def train():
-    print('Starting the training123.' + '\n')
+    logging.info('Starting the training.')
     try:
-        print('Current working directory: ' + os.getcwd() + '\n')
-        logging.info("# 1. Loading script params ")
+        # ========== Setup =============
+        logging.info('Current working directory: ' + os.getcwd())
+        Timer.start('training')
+        logging.info("# Starting ")
         logging.info("# ================================")
-        
-        f = open(params_path, 'r')
-        file_contents = f.read()
-        print (file_contents)
-        f.close()
-        
+
+        # ============= End ===============
+        logging.info("# Finishing")
         logging.info("# ================================")
-        
-        print(listdir(os.getcwd()))
-        print(listdir('/opt/ml/input/'))
-        print(listdir('/opt/ml/input/data/'))
-        print(listdir('/opt/ml/input/data/training/'))
-        logging.info("# ================================")
-        with open(os.path.join(output_path, 'sample_output'), 'w') as s:
-            s.write('training out')
-            
-        logging.info('Training complete.11111????')
+        Timer.stop('training')
+        timers = Timer.getFormattedTimers()
+        outputProcessor.addInfo('timers', timers)
+        logging.info(timers)
+        outputProcessor.saveInfo(os.path.join(outputPath, 'info.json')) 
+        logging.info('Training complete')
     except Exception as e:
         # Write out an error file. This will be returned as the failureReason in the
         # DescribeTrainingJob result.
         trc = traceback.format_exc()
-        with open(os.path.join(output_path, 'failure'), 'w') as s:
-            s.write('Exception during training: ' + str(e) + '\n' + trc)
+        with open(os.path.join(outputPath, 'failure'), 'w+') as failedFile:
+            failedFile.write('Exception during training: ' + str(e) + '\n' + trc)
             
         # Printing this causes the exception to be in the training job logs, as well.
         print('Exception during training: ' + str(e) + '\n' + trc, file=sys.stderr)
         # A non-zero exit code causes the training job to be marked as Failed.
-        sys.exit(255)
+        sys.exit(1)
 
 if __name__ == '__main__':
     train()

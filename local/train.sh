@@ -5,11 +5,15 @@
 image="aws-contextual-summary"
 
 mkdir -p code/output
-mkdir -p code/log
+mkdir -p log
 
 rm -R code/output/*
-rm code/log/*
 
-mkdir -p code/output/data
+docker run -v $(pwd)/code:/opt/ml \
+    -v /Users/ishratsami/Workspace/research_projects/data/:/opt/ml/input/data/training/ \
+    -v /Users/ishratsami/Workspace/research_projects/output/:/opt/ml/output/ \
+    --rm ${image} \
+    | tee $(pwd)/log/server.log
 
-docker run -v $(pwd)/code:/opt/ml --rm ${image} | tee $(pwd)/log/server.log
+
+#docker logs -t ${image}
