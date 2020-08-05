@@ -17,7 +17,6 @@ class Core:
     def __init__(self, name, path, params = {}):
         self.name = name
         self.path = path
-        print('core ', self.path)
         self.dataSetProcessor = Base(self.path, self.name)
         self.params = params
         return

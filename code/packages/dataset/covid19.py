@@ -94,8 +94,13 @@ class Covid19(Base):
     def __getData(self, rawData):
         source, label = rawData
         sourceRaw = source.numpy()
-        sourceRaw = sourceRaw.decode("utf-8", "ignore")
-        return json.loads(sourceRaw)
+        try:
+            sourceRaw = sourceRaw.decode("utf-8", "ignore")
+            return json.loads(sourceRaw)
+        except Exception as e:
+            print(label)
+            
+        return {}
 
     def getProcessedText(self, text):
         words = word_tokenize(self.__clean(text))
