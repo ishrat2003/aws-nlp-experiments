@@ -1,17 +1,17 @@
-from .core import Core as File
+from .core import Core
 import os
 
 class Base():
     
     def remove(self, filePath):
-        file = File(filePath)
+        file = Core(filePath)
         return file.remove()
     
     def getFile(self, filename, writeHeader = True):
         path = os.path.join(self.path, filename)
-        file = File(path, writeHeader)
+        file = Core(path, writeHeader)
         return file
     
     def getFilePath(self, fileName, path):
-        return File.join(path, fileName)
+        return Core.join(path, fileName)
 

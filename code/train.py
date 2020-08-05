@@ -12,6 +12,9 @@ sys.path.append(packagesPath)
 from params import Input as InputParams
 from params import Output as OutputParams
 from utility import Timer
+from dataset.core import Core as Dataset
+from contextualVocab.lcVocab import LCVocab
+from text.sequences import Sequences
 
 paramsProcessor = InputParams("/opt/ml/input/config/hyperparameters.json")
 params = paramsProcessor.getAll()
@@ -30,6 +33,27 @@ def train():
         Timer.start('training')
         logging.info("# Starting ")
         logging.info("# ================================")
+        # ========== Loading dataset processor =============
+        logging.info("# 2.1. Loading raw dataset (" + str(params['dataset_percentage']) + "%)")
+        print('params', params['data_directory'])
+        dataset = Dataset(params['dataset_name'], params['data_directory'], params)
+        dataProcessor = dataset.get(float(params['dataset_percentage']), int(params['total_items']))
+        trainingSet, validationSet = dataProcessor.get()
+        if not trainingSet or not validationSet:
+            logging.error('No dataset found')
+            sys.exit(1)
+            
+        logging.info("# 2.2. Preparing vocab (source + target)")
+        vocabProcessor = LCVocab(dataProcessor, params)
+        logging.info("# Preparing vocab (source)")
+        tokenizerSource = vocabProcessor.get(trainingSet, 'source')
+        logging.info("# Preparing vocab (target)")
+        tokenizerTarget = vocabProcessor.get(trainingSet, 'target')
+        logging.info("# Sample output using source vocab")
+        sampleString = 'This news is great'
+        vocabProcessor.printSample(tokenizerSource, sampleString)
+        logging.info("# Sample output using target vocab")
+        vocabProcessor.printSample(tokenizerTarget, sampleString)
 
         # ============= End ===============
         logging.info("# Finishing")

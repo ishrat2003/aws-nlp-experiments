@@ -1,4 +1,4 @@
-from utility import Directory
+from filesystem import Directory
 import os
 import zipfile
 import tarfile

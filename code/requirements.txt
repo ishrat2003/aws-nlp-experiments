@@ -4,3 +4,9 @@ tensorflow_datasets
 keras 
 utils
 sagemaker
+matplotlib
+numpy
+absl-py
+six>=1.14
+rouge-score
+sklearn

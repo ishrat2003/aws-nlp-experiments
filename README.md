@@ -93,7 +93,7 @@ jupyter notebook&
 
 ## Additional notes
 
-- Get the list of iam roles for traing and copy the arn and put it in notebook.
+- Get the list of IAM roles for training and copy the ARN and put it in the notebook.
 ```sh
 aws iam list-roles --profile ishrat_experiments | grep isSageMaker
 ```

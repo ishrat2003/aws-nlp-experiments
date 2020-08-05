@@ -1,6 +1,6 @@
-from file import Json
+from file.json import Json
 from utility import Timer
-from utility import Directory
+from filesystem import Directory
 import os
 
 class Input:
@@ -16,7 +16,7 @@ class Input:
     return
   
   def getDataPath(self):
-    return os.path.join(self.params['output_directory'], self.params['dataset_name'])
+    return os.path.join(self.params['data_directory'], self.params['dataset_name'])
   
   def getOutputPath(self):
     directoryPath = os.path.join(self.params['output_directory'], self.params['dataset_name'], self.params['current_datetime'])
