@@ -59,7 +59,9 @@ class Covid19(Base):
     def getText(self, rawData, includeAbstract = True, updateInfo = False):
         text = None
         data = self.__getData(rawData)
-        
+        if not data:
+            return ''
+
         bodyText = [paragraph["text"] for paragraph in data["body_text"]]
         
         if includeAbstract:
@@ -82,6 +84,8 @@ class Covid19(Base):
     
     def getAbstractText(self, rawData, updateInfo = False):
         data = self.__getData(rawData)
+        if not data:
+            return ''
         abstractText = [paragraph["text"] for paragraph in data["abstract"]]
         abstractJoinedText = ' '.join(abstractText)
         if updateInfo:

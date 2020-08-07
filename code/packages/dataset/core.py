@@ -49,6 +49,6 @@ class Core:
 
         self.dataSetProcessor.setSplitPercentage(percentage)
         self.dataSetProcessor.setTotalItems(total)
-        self.dataSetProcessor.setMode(self.params['mode']);
-        self.dataSetProcessor.setParams(self.params);
+        self.dataSetProcessor.setMode(self.params['mode'])
+        self.dataSetProcessor.setParams(self.params)
         return self.dataSetProcessor
