@@ -14,6 +14,8 @@ class Output(object):
             return self.info
         
         def getInfoByKey(self, key):
+            if key not in self.info.keys():
+                return {}
             return self.info[key]
         
         def saveInfo(self, filePath):

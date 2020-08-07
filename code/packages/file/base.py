@@ -7,8 +7,10 @@ class Base():
         file = Core(filePath)
         return file.remove()
     
-    def getFile(self, filename, writeHeader = True):
-        path = os.path.join(self.path, filename)
+    def getFile(self, filename, writeHeader = True, path = None):
+        if not path:
+            path = self.path
+        path = os.path.join(path, filename)
         file = Core(path, writeHeader)
         return file
     

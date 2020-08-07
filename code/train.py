@@ -62,6 +62,7 @@ def train():
         timers = Timer.getFormattedTimers()
         outputProcessor.addInfo('timers', timers)
         logging.info(timers)
+        dataProcessor.saveInfo()
         outputProcessor.saveInfo(os.path.join(outputPath, 'info.json')) 
         logging.info('Training complete')
     except Exception as e:

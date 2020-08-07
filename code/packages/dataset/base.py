@@ -8,6 +8,9 @@ from nltk import word_tokenize, pos_tag
 from nltk.stem.porter import PorterStemmer
 import lc as LC
 from file.pickle import Pickle
+from params import Output as OutputParams
+from nltk import word_tokenize
+from utility import Timer
 
 class Base(Pickle):
     
@@ -23,8 +26,9 @@ class Base(Pickle):
         self.stemmer = PorterStemmer()
         self.mode = ''
         self.path = path    
-        self.sourceLengthFile = self.getFile('sourceLength.csv')
-        self.targetLengthFile = self.getFile('targetLength.csv')
+        self.dataCumulativeInfoFile = None
+        self.datasetInfo = {}
+        self.epochIndex = 1
         return
     
     def setSplitPercentage(self, percentage = 100):
@@ -109,22 +113,108 @@ class Base(Pickle):
 
         return ' '.join(processedWords)
     
-    def processSource(self, text):
-        # print('------------------------------------------')
-        # print('Text:  ', text);
+    def startEpoch(self):
+        epochName = self.getEpochName()
+        Timer.start(epochName)
+        return
+    
+    def saveEpochInfo(self):
+        if not self.dataCumulativeInfoFile:
+            self.dataCumulativeInfoFile = self.getFile('cumulative', True, self.params['cumulative_directory'])
+            
+        epochName = self.getEpochName()
+        Timer.stop(epochName)
+        
+        timers = Timer.getFormattedTimers()
+        row = {}
+        row['dataset'] = self.name
+        row['epoch'] = self.epochIndex
+        
+        for key in timers[epochName].keys():
+            row[type + '_' + key] = timers[epochName][key]
+        
+        for type in self.datasetInfo.keys():
+            for key in self.datasetInfo[type].keys():
+                row[type + '_' + key] = self.datasetInfo[type][key]
+        
+        
+        self.dataCumulativeInfoFile.write(row)
+        self.datasetInfo = {}
+        self.epochIndex += 1
+        return
+    
+    def saveInfo(self):
+        outputProcessor = OutputParams()
+        outputProcessor.addInfo(self.name, self.datasetInfo)
+        return
+    
+    def processSource(self, text, decode = True):
+        if decode:
+            decodedText = text.decode("utf-8")
+        else:
+            decodedText = text
+            
         if self.mode in ['context', 'masked_context']:
-            text = text.decode("utf-8")   
-            context = self.__getContext(text)
-            return context.encode("utf-8")
+            context = self.__getContext(decodedText)
+            text = context.encode("utf-8")
+        
+        self.__updateInfoBySequenceType(decodedText, 'source')
         return text
     
-    def processTarget(self, text):
-        # print('Summary:    ', text)
-        words = word_tokenize(text.decode("utf-8"))
-        self.targetLengthFile.write({
-            'targetLength': len(words)
-        })
+    def processTarget(self, text, decode = True):
+        if decode:
+            decodedText = text.decode("utf-8")
+        else:
+            decodedText = text
+        self.__updateInfoBySequenceType(decodedText, 'target')
         return text
+    
+    def getEpochName(self):
+        return 'current_or_last_epoch';
+    
+    def __updateInfoBySequenceType(self, text, type = 'source'):
+        words = word_tokenize(text)
+        if ((not words) or (not len(words))):
+            return
+        
+        for key in ['max', 'min', 'avg', 'total']:
+            self.__updateInfo(key, len(words), type)
+        
+        return
+    
+    
+    def __updateInfo(self, key, value, type):
+        if (type not in self.datasetInfo.keys()):
+            self.datasetInfo[type] = {}
+            if (type == 'source'):
+                self.startEpoch()
+                
+            
+        if (key not in self.datasetInfo[type].keys()):
+            if (key == 'total'):
+                self.datasetInfo[type][key] = 1
+            else:
+                self.datasetInfo[type][key] = value
+            return
+            
+        if (key == 'max'):
+            if (self.datasetInfo[type][key] < value):
+                self.datasetInfo[type][key] = value
+                return
+                
+        if (key == 'min'):
+            if (self.datasetInfo[type][key] > value):
+                self.datasetInfo[type][key] = value
+                return
+                
+        if (key == 'avg'):
+            self.datasetInfo[type][key] = (self.datasetInfo[type][key] + value) / 2
+            return
+            
+        if (key == 'total'):
+            self.datasetInfo[type][key] += 1
+            return
+        return
     
     def __getContext(self, text):
         peripheralProcessor = LC.Peripheral(text)
@@ -180,4 +270,3 @@ class Base(Pickle):
             split = readInstructions)
         
         return data[0], data[1]
-    

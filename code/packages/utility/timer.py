@@ -37,6 +37,8 @@ class Timer():
 	def getFormattedTimers():
 		formattedTimer = {}
 		for identifier in Timer.allTimer.keys():
+			if 'stop' not in Timer.allTimer[identifier].keys():
+				continue
 			formattedTimer[identifier] = {
 				'start': Timer.getFormatedDate(Timer.allTimer[identifier]['start']),
 				'stop': Timer.getFormatedDate(Timer.allTimer[identifier]['stop']),

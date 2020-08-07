@@ -56,16 +56,20 @@ class Covid19(Base):
             return dataset.take(self.totalItems)
         return dataset.take(self.validationDataSetSize)
     
-    def getText(self, rawData, includeAbstract = True):
+    def getText(self, rawData, includeAbstract = True, updateInfo = False):
+        text = None
         data = self.__getData(rawData)
         
         bodyText = [paragraph["text"] for paragraph in data["body_text"]]
         
-        if not includeAbstract:
-            return ' '.join(bodyText);
+        if includeAbstract:
+            abstractText = [paragraph["text"] for paragraph in data["abstract"]]
+            text = ' '.join(abstractText) + ' '.join(bodyText)
+        else:
+            text = ' '.join(bodyText)
         
-        abstractText = [paragraph["text"] for paragraph in data["abstract"]]
-        text = ' '.join(abstractText) + ' '.join(bodyText)
+        if updateInfo:
+            self.processSource(text, False)
         return text
     
     def getTitle(self, rawData):
@@ -76,20 +80,25 @@ class Covid19(Base):
         data = self.__getData(rawData)
         return data["abstract"]
     
-    def getAbstractText(self, rawData):
+    def getAbstractText(self, rawData, updateInfo = False):
         data = self.__getData(rawData)
         abstractText = [paragraph["text"] for paragraph in data["abstract"]]
-        return ' '.join(abstractText)
+        abstractJoinedText = ' '.join(abstractText)
+        if updateInfo:
+            self.processTarget(abstractJoinedText, False)
+        return abstractJoinedText
     
     def getLabel(self, rawData):
         source, label = rawData
         return label.numpy().decode("utf-8")
     
     def getGenerator(self, dataSet, type = 'source'):
+        output = None
         if type == 'source':
-            return (self.getText(data) for data in dataSet)
-    
-        return (self.getAbstractText(data) for data in dataSet)
+            output = (self.getText(data, False, True) for data in dataSet)
+        else:
+            output = (self.getAbstractText(data, True) for data in dataSet)        
+        return output
     
     def __getData(self, rawData):
         source, label = rawData
