@@ -37,7 +37,7 @@ def train():
         logging.info("# 2.1. Loading raw dataset (" + str(params['dataset_percentage']) + "%)")
         print('params', params['data_directory'])
         dataset = Dataset(params['dataset_name'], params['data_directory'], params)
-        dataProcessor = dataset.get(float(params['dataset_percentage']), int(params['total_items']))
+        dataProcessor = dataset.get(float(params['dataset_percentage']), int(params['total_items']), int(params['validation_total_items']))
         trainingSet, validationSet = dataProcessor.get()
         if not trainingSet or not validationSet:
             logging.error('No dataset found')
@@ -54,7 +54,37 @@ def train():
         vocabProcessor.printSample(tokenizerSource, sampleString)
         logging.info("# Sample output using target vocab")
         vocabProcessor.printSample(tokenizerTarget, sampleString)
+        
+        #///////////////////////////////
+        # logging.info("# 2.3. Preparing sequences (source (context) + target (summary))")
+        sequencesProcesser = Sequences(params, tokenizerSource, tokenizerTarget, dataProcessor)
+        trainingSequences = sequencesProcesser.getTokenizedDataset(trainingSet)
+        logging.info("# Sample sequences for training dataset")
+        sequencesProcesser.printSample(trainingSequences)
+        
+        validaitionSequences = sequencesProcesser.getTokenizedDataset(validationSet, True)
+        logging.info("# Sample sequences for validation dataset")
+        sequencesProcesser.printSample(validaitionSequences)
 
+        # logging.info("# 3. Training")
+        # logging.info("# ================================")
+        # logging.info("# 3.1. Setting layers")
+
+        # trainer = Trainer(params)
+        # inputVocabSize = tokenizerSource.vocab_size + 2
+        # targetVocabSize = tokenizerTarget.vocab_size + 2
+        # transformer = Transformer(params, inputVocabSize, targetVocabSize, 
+        #                         pe_input=inputVocabSize, 
+        #                         pe_target=targetVocabSize)
+
+        # trainer.setModel(transformer)
+        # trainer.setCheckpoint(params.data_directory + '/' + params.dataset_name + '/checkpoints')
+        # trainer.setTensorboard(params.data_directory + '/' + params.dataset_name + '/logs')
+        
+        
+        
+
+        #////////////////////////////////
         # ============= End ===============
         logging.info("# Finishing")
         logging.info("# ================================")

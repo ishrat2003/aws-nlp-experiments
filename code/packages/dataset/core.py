@@ -21,7 +21,7 @@ class Core:
         self.params = params
         return
     
-    def get(self, percentage = 100, total = 0):
+    def get(self, percentage = 100, total = 0, validationTotal = 0):
         if (self.name == 'newsroom'):
             self.dataSetProcessor = Newsroom(self.path)
         elif (self.name == 'pt_to_en_translate'):
@@ -49,6 +49,7 @@ class Core:
 
         self.dataSetProcessor.setSplitPercentage(percentage)
         self.dataSetProcessor.setTotalItems(total)
+        self.dataSetProcessor.setTotalValidationItems(validationTotal)
         self.dataSetProcessor.setMode(self.params['mode'])
         self.dataSetProcessor.setParams(self.params)
         return self.dataSetProcessor

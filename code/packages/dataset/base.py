@@ -18,6 +18,7 @@ class Base(Pickle):
         self.directoryPath = path
         self.name = name
         self.totalItems = 0
+        self.totalValidationItems = 0
         self.splitPercentage = 100
         self.metadata = None
         self.supervised = supervised
@@ -37,8 +38,12 @@ class Base(Pickle):
         self.splitPercentage = percentage
         return
     
-    def setTotalItems(self, total = 100):
+    def setTotalItems(self, total = 0):
         self.totalItems = total
+        return
+    
+    def setTotalValidationItems(self, validationTotal = 0):
+        self.totalValidationItems = validationTotal
         return
     
     def setMode(self, mode = ''):
@@ -155,8 +160,8 @@ class Base(Pickle):
             decodedText = text
             
         if self.mode in ['context', 'masked_context']:
-            context = self.__getContext(decodedText)
-            text = context.encode("utf-8")
+            decodedText = self.__getContext(decodedText)
+            text = decodedText.encode("utf-8")
         
         self.__updateInfoBySequenceType(decodedText, 'source')
         return text
@@ -184,6 +189,10 @@ class Base(Pickle):
     
     
     def __updateInfo(self, key, value, type):
+        if (value == 0): 
+            # Ignoring edge case
+            return
+        
         if (type not in self.datasetInfo.keys()):
             self.datasetInfo[type] = {}
             if (type == 'source'):
@@ -230,13 +239,12 @@ class Base(Pickle):
         points = peripheralProcessor.getPoints()
         
         contributors = peripheralProcessor.getContributingWords()
-        self.sourceLengthFile.write(peripheralProcessor.getLengths())
         
         if self.mode == 'masked_context':
             return self.maskedContext(contributors)
         
-        # print('------------------------------------------')
-        # print('contributors (', str(len(contributors)), '): ', contributors)
+        print('------------------------------------------')
+        print('contributors (', str(len(contributors)), '): ', contributors)
         return ' '.join(contributors)
     
     def maskedContext(self, contributors):
@@ -252,7 +260,7 @@ class Base(Pickle):
         if self.totalItems:
             readInstructions = [
                 tfds.core.ReadInstruction('train', from_ = 1, to = self.totalItems + 1, unit='abs'),
-                tfds.core.ReadInstruction('validation', from_ = 1, to = self.totalItems + 1, unit='abs'),
+                tfds.core.ReadInstruction('validation', from_ = 1, to = self.totalValidationItems + 1, unit='abs'),
             ]
         elif self.splitPercentage:
             readInstructions = [

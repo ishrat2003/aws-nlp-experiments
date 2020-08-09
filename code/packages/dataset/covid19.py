@@ -52,13 +52,13 @@ class Covid19(Base):
     
     def getValidationSet(self):
         dataset = self.getWholeDataset()
-        if self.totalItems:
-            return dataset.take(self.totalItems)
+        if self.totalValidationItems:
+            return dataset.take(self.totalValidationItems)
         return dataset.take(self.validationDataSetSize)
     
-    def getText(self, rawData, includeAbstract = True, updateInfo = False):
+    def getText(self, rawData, includeAbstract = True, updateInfo = False, labelIncluded = True):
         text = None
-        data = self.__getData(rawData)
+        data = self.__getData(rawData, labelIncluded)
         if not data:
             return ''
 
@@ -71,7 +71,8 @@ class Covid19(Base):
             text = ' '.join(bodyText)
         
         if updateInfo:
-            self.processSource(text, False)
+            text = self.processSource(text, False)
+            
         return text
     
     def getTitle(self, rawData):
@@ -82,14 +83,15 @@ class Covid19(Base):
         data = self.__getData(rawData)
         return data["abstract"]
     
-    def getAbstractText(self, rawData, updateInfo = False):
-        data = self.__getData(rawData)
+    def getAbstractText(self, rawData, updateInfo = False, labelIncluded = True):
+        data = self.__getData(rawData, labelIncluded)
         if not data:
             return ''
         abstractText = [paragraph["text"] for paragraph in data["abstract"]]
         abstractJoinedText = ' '.join(abstractText)
         if updateInfo:
-            self.processTarget(abstractJoinedText, False)
+            abstractJoinedText = self.processTarget(abstractJoinedText, False)
+        
         return abstractJoinedText
     
     def getLabel(self, rawData):
@@ -104,8 +106,11 @@ class Covid19(Base):
             output = (self.getAbstractText(data, True) for data in dataSet)        
         return output
     
-    def __getData(self, rawData):
-        source, label = rawData
+    def __getData(self, rawData, labelIncluded = True):
+        if labelIncluded:
+            source, label = rawData
+        else:
+            source = rawData
         sourceRaw = source.numpy()
         try:
             sourceRaw = sourceRaw.decode("utf-8", "ignore")
