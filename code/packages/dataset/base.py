@@ -243,8 +243,8 @@ class Base(Pickle):
         if self.mode == 'masked_context':
             return self.maskedContext(contributors)
         
-        print('------------------------------------------')
-        print('contributors (', str(len(contributors)), '): ', contributors)
+        # print('------------------------------------------')
+        # print('contributors (', str(len(contributors)), '): ', contributors)
         return ' '.join(contributors)
     
     def maskedContext(self, contributors):

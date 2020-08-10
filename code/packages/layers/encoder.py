@@ -20,7 +20,7 @@ class Encoder(tf.keras.layers.Layer):
         return
 
     def call(self, x, training, mask):
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('----- Encoder -----')
             print('x', x.shape)
             print('mask', mask.shape)
@@ -33,7 +33,7 @@ class Encoder(tf.keras.layers.Layer):
         ffnOutput = self.dropout2(ffnOutput, training=training)
         out2 = self.layernorm2(out1 + ffnOutput)  # (batch_size, input_seq_len, d_model)
         
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('attnOutput', attnOutput.shape)
             print('out1', out1.shape)
             print('ffnOutput', ffnOutput.shape)

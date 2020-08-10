@@ -6,11 +6,11 @@ class SequenceDecoder(tf.keras.layers.Layer):
     
     def __init__(self, params, target_vocab_size, maximum_position_encoding):
         self.params = params
-        self.num_layers = params.num_layers
-        self.d_model = params.d_model
-        num_heads = params.num_heads
-        dff = params.dff
-        rate = params.dropout_rate
+        self.num_layers = params['num_layers']
+        self.d_model = params['d_model']
+        num_heads = params['num_heads']
+        dff = params['dff']
+        rate = params['dropout_rate']
         
         super(SequenceDecoder, self).__init__()
         self.embedding = tf.keras.layers.Embedding(target_vocab_size, self.d_model)
@@ -22,7 +22,7 @@ class SequenceDecoder(tf.keras.layers.Layer):
         return
 
     def call(self, x, encoderOutput, training, lookAheadMask, paddingMask):
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('----- SequenceDecoder -----')
             print('x', x.shape)
             print('encoderOutput', encoderOutput.shape)
@@ -36,7 +36,7 @@ class SequenceDecoder(tf.keras.layers.Layer):
         x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
         x += self.positionalEmbedding[:, :seq_len, :]
 
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('output after positional encoding', x.shape)
             
         x = self.dropout(x, training=training)
@@ -46,7 +46,7 @@ class SequenceDecoder(tf.keras.layers.Layer):
             attentionWeights['decoder_layer{}_block1'.format(i+1)] = block1
             attentionWeights['decoder_layer{}_block2'.format(i+1)] = block2
 
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('output after decoder layers', x.shape)
             print('attentionWeights1 after decoder layers', attentionWeights['decoder_layer1_block1'].shape)
             print('attentionWeights2 after decoder layers', attentionWeights['decoder_layer1_block2'].shape)

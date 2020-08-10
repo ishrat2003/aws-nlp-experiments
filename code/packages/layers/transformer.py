@@ -7,11 +7,11 @@ class Transformer(tf.keras.Model):
     def __init__(self, params, input_vocab_size, target_vocab_size, pe_input, pe_target):
         super(Transformer, self).__init__()
         self.params = params
-        num_layers = params.num_layers
-        d_model = params.d_model
-        num_heads = params.num_heads
-        dff = params.dff
-        rate = params.dropout_rate
+        num_layers = params['num_layers']
+        d_model = params['d_model']
+        num_heads = params['num_heads']
+        dff = params['dff']
+        rate = params['dropout_rate']
         '''
         Encoder:
         Combination of layers dedicated to train source sequence.
@@ -68,7 +68,7 @@ class Transformer(tf.keras.Model):
         '''
         self.finalLayer = tf.keras.layers.Dense(target_vocab_size)
     
-        if self.params.display_network == True:
+        if self.params['display_details'] == True:
             print('Transformer (3 layers)')
             print('SequenceEncoder layer')
             print('-- Input: source, encoderPaddingMask')
@@ -82,21 +82,21 @@ class Transformer(tf.keras.Model):
         return
 
     def call(self, source, target, training, encoderPaddingMask, decoderTargetPaddingAndLookAheadMask, decoderPaddingMask):
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('=========== Transformer ===========')
             
         encoderOutput = self.encoder(source, training, encoderPaddingMask)  # (batch_size, inp_seq_len, d_model)
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('transformer encoderOutput:', encoderOutput.shape)
             
         # dec_output.shape == (batch_size, tar_seq_len, d_model)
         decoderOutput, attentionWeights = self.decoder(target, encoderOutput, training, decoderTargetPaddingAndLookAheadMask, decoderPaddingMask)
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('transformer decoderOutput:', decoderOutput.shape)
             print('transformer attentionWeights:', attentionWeights)
 
         finalOutput = self.finalLayer(decoderOutput)  # (batch_size, tar_seq_len, target_vocab_size)
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('transformer finalOutput:', finalOutput.shape)
         
         return finalOutput, attentionWeights

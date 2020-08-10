@@ -24,7 +24,7 @@ class Decoder(tf.keras.layers.Layer):
         return
 
     def call(self, x, encoderOutput, training, lookAheadMask, paddingMask):
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('----- Decoder -----')
             print('x', x.shape)
             print('encoderOutput', encoderOutput.shape)
@@ -45,7 +45,7 @@ class Decoder(tf.keras.layers.Layer):
         ffnOutput = self.dropout3(ffnOutput, training=training)
         out3 = self.layernorm3(ffnOutput + out2)  # (batch_size, target_seq_len, d_model)
 
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('out1', out1.shape)
             print('out2', out2.shape)
             print('out3', out3.shape)

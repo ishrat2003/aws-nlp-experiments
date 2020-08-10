@@ -7,11 +7,11 @@ class SequenceEncoder(tf.keras.layers.Layer):
     def __init__(self, params, input_vocab_size, maximum_position_encoding):
         super(SequenceEncoder, self).__init__()
         self.params = params
-        self.d_model = self.params.d_model
-        num_heads = self.params.num_heads
-        self.num_layers = self.params.num_layers
-        dff = self.params.dff
-        rate = self.params.dropout_rate
+        self.d_model = self.params['d_model']
+        num_heads = self.params['num_heads']
+        self.num_layers = self.params['num_layers']
+        dff = self.params['dff']
+        rate = self.params['dropout_rate']
         '''
         Turns positive integrs into dense vector of fixed size.
         Model specification:
@@ -50,7 +50,7 @@ class SequenceEncoder(tf.keras.layers.Layer):
         return
         
     def call(self, x, training, mask):
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('----- SequenceEncoder -----')
             print('x', x.shape)
             print('mask', mask.shape)
@@ -67,7 +67,7 @@ class SequenceEncoder(tf.keras.layers.Layer):
         for i in range(self.num_layers):
             x = self.encoderLayers[i](x, training, mask)
             
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('encoder output', x.shape)
             
         return x  # (batch_size, input_seq_len, d_model)

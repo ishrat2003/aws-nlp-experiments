@@ -15,6 +15,10 @@ from utility import Timer
 from dataset.core import Core as Dataset
 from contextualVocab.lcVocab import LCVocab
 from text.sequences import Sequences
+from network.trainer import Trainer
+from layers.transformer import Transformer
+from predictor.sequence import Sequence as TransformerPredictor
+from evaluation.rouge import Rouge
 
 paramsProcessor = InputParams("/opt/ml/input/config/hyperparameters.json")
 params = paramsProcessor.getAll()
@@ -66,24 +70,38 @@ def train():
         logging.info("# Sample sequences for validation dataset")
         sequencesProcesser.printSample(validaitionSequences)
 
-        # logging.info("# 3. Training")
-        # logging.info("# ================================")
-        # logging.info("# 3.1. Setting layers")
+        logging.info("# 3. Training")
+        logging.info("# ================================")
+        logging.info("# 3.1. Setting layers")
 
-        # trainer = Trainer(params)
-        # inputVocabSize = tokenizerSource.vocab_size + 2
-        # targetVocabSize = tokenizerTarget.vocab_size + 2
-        # transformer = Transformer(params, inputVocabSize, targetVocabSize, 
-        #                         pe_input=inputVocabSize, 
-        #                         pe_target=targetVocabSize)
+        trainer = Trainer(params)
+        inputVocabSize = tokenizerSource.vocab_size + 2
+        targetVocabSize = tokenizerTarget.vocab_size + 2
+        transformer = Transformer(params, inputVocabSize, targetVocabSize, 
+                                pe_input=inputVocabSize, 
+                                pe_target=targetVocabSize)
 
-        # trainer.setModel(transformer)
-        # trainer.setCheckpoint(params.data_directory + '/' + params.dataset_name + '/checkpoints')
-        # trainer.setTensorboard(params.data_directory + '/' + params.dataset_name + '/logs')
+        trainer.setModel(transformer)
+        trainer.setCheckpoint(params['output_directory'] + '/checkpoints')
+        trainer.setTensorboard(params['output_directory'] + '/logs')
+        
+        logging.info("# 3.2. Setting validation set")
+        trainer.setValidationDataset(validaitionSequences)
+    
+        logging.info("# 3.2. Setting predictor")
+        predictor = TransformerPredictor(params, tokenizerSource, tokenizerTarget, transformer)
+        predictor.setModel(transformer)
+        trainer.setPredictor(predictor)
+
+        logging.info("# 3.2. Setting evaluator")
+        evaluator = Rouge(params)
+        trainer.setEvaluator(evaluator)
+
+        logging.info("# 3.3. Training & Evaluation")
+        trainer.process(params['epochs'], trainingSequences)
         
         
         
-
         #////////////////////////////////
         # ============= End ===============
         logging.info("# Finishing")

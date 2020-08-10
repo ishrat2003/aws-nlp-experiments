@@ -14,6 +14,7 @@
     "target_max_sequence_length": 300,
     "dimensions": 128,
     "num_layers": 4,
+    "num_heads": 4,
     "d_model": 128,
     "dff": 512,
     "dropout_rate": 0.1,

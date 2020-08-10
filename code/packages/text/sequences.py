@@ -24,11 +24,11 @@ class Sequences:
             print('tfEncode target', target)
             return source, target
         
-        # def filterMaxLength(source, target):
-        #     return tf.logical_and(tf.size(source) <= self.params['source_max_sequence_length'], tf.size(target) <= self.params['target_max_sequence_length'])
+        def filterMaxLength(source, target):
+            return tf.logical_and(tf.size(source) <= self.params['source_max_sequence_length'], tf.size(target) <= self.params['target_max_sequence_length'])
 
         tokenizedDataset = dataset.map(tfEncode)
-        # tokenizedDataset = tokenizedDataset.filter(filterMaxLength)
+        tokenizedDataset = tokenizedDataset.filter(filterMaxLength)
         
         if not validation:
             # cache the dataset to memory to get a speedup while reading from it.

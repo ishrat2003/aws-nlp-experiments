@@ -31,14 +31,14 @@ class MultiHead(tf.keras.layers.Layer):
         x = tf.reshape(x, (batch_size, -1, self.num_heads, self.depth))
         xTranspose = tf.transpose(x, perm=[0, 2, 1, 3])
         
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('splitting head: ', batch_size, -1, self.num_heads, self.depth)
             print('after reshape x:', x.shape)
             print('after transpose [0, 2, 1, 3] x:', xTranspose.shape)
         return xTranspose
 
     def call(self, v, k, q, mask):
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('----- Multi Head -----')
             print('q - input: ', q.shape)
             print('k - input: ', k.shape)
@@ -65,7 +65,7 @@ class MultiHead(tf.keras.layers.Layer):
 
         output = self.dense(concat_attention)  # (batch_size, seq_len_q, d_model)
 
-        if (self.params.display_details == True) :
+        if (self.params['display_details'] == True) :
             print('----- Multi Head -----')
             print('batch_size: ', batch_size)
             print('wq: ', q.shape)
