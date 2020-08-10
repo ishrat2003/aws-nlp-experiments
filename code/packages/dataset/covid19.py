@@ -111,12 +111,15 @@ class Covid19(Base):
             source, label = rawData
         else:
             source = rawData
+            label = None
+            
         sourceRaw = source.numpy()
         try:
             sourceRaw = sourceRaw.decode("utf-8", "ignore")
             return json.loads(sourceRaw)
         except Exception as e:
-            print(label)
+            if (label):
+                print(label)
             
         return {}
 
