@@ -37,11 +37,13 @@ class Sequence():
 
     def process(self, source):
         self.source = source
-        startToken = [self.sourceTokenizer.vocab_size]
-        endToken = [self.sourceTokenizer.vocab_size + 1]
+        print('---- predictor ------')
+        print(source)
+        #startToken = [self.sourceTokenizer.vocab_size]
+        #endToken = [self.sourceTokenizer.vocab_size + 1]
 
-        sourceInput = startToken + self.sourceTokenizer.encode(source) + endToken
-        encoderInput = tf.expand_dims(sourceInput, 0)
+        #sourceInput = startToken + self.sourceTokenizer.encode(source) + endToken
+        encoderInput = tf.expand_dims(source, 0)
 
         # as the target is english, the first word to the transformer should be the
         # english start token.

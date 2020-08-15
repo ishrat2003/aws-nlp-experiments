@@ -12,7 +12,7 @@ import datetime
 
 class Trainer:
     
-    def __init__(self, params):
+    def __init__(self, params, tokenizerSource, tokenizerTarget):
         self.params = params
         self.dModel = self.params['d_model']
         self.optimizer = self.getOptimizer()
@@ -24,6 +24,8 @@ class Trainer:
         self.setAccuracyMetrics()
         self.predictor = None
         self.evaluator = None
+        self.sourceTokenizer = tokenizerSource
+        self.targetTokenizer = tokenizerTarget
         return
     
     def setTensorboard(self, logDir):
@@ -141,10 +143,11 @@ class Trainer:
 
         self.predictor.setModel(self.model)
         for (batch, (source, target)) in enumerate(self.validationDataset):
-                source = source.numpy().decode('utf-8')
-                target = target.numpy().decode('utf-8')
                 generated = self.predictor.process(source)
-                score = self.evaluator.getScore(target, generated)
+                targetToCompare = self.targetTokenizer.decode([i for i in target if i < self.targetTokenizer.vocab_size])
+                print('e target', targetToCompare)
+                print('e generate', generated)
+                score = self.evaluator.getScore(targetToCompare, generated)
                 
                 if (self.params['display_details'] == True) :
                     print('Batch: ', batch)

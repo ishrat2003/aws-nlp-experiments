@@ -74,7 +74,7 @@ def train():
         logging.info("# ================================")
         logging.info("# 3.1. Setting layers")
 
-        trainer = Trainer(params)
+        trainer = Trainer(params, tokenizerSource, tokenizerTarget)
         inputVocabSize = tokenizerSource.vocab_size + 2
         targetVocabSize = tokenizerTarget.vocab_size + 2
         transformer = Transformer(params, inputVocabSize, targetVocabSize, 
